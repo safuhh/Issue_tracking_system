@@ -11,8 +11,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',
-        changeOrigin: true
+        target: 'https://issue-tracking-system-7nly.onrender.com',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

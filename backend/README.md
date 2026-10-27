@@ -225,5 +225,5 @@ npm start
 ## 🌐 Service URLs
 
 - **Local Development API:** `http://localhost:5001/api`
-- **Production Public API:** `Pending` *(Not yet deployed to a public cloud environment)*
+- **Production Public API:** `https://issue-tracking-system-7nly.onrender.com/api`
 - **Master Documentation:** [Root README](../README.md) & [BRD](../brd.md)

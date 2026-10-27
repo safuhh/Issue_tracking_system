@@ -55,7 +55,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 // ─── Start ───────────────────────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
   console.log(`🚀 Express server running on port ${PORT}`);
-  console.log(`🔗 API: http://localhost:${PORT}/api`);
+  console.log(`🔗 Live Render API: https://issue-tracking-system-7nly.onrender.com/api`);
 });
 
 server.on('error', (err: any) => {

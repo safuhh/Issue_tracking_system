@@ -130,7 +130,7 @@ npm run preview
    - **Install Command:** `npm install`
 3. **Environment Variables on Vercel:**
    Add the following environment variable to connect to your live Render backend:
-   - `VITE_API_URL`: `https://your-backend-app.onrender.com/api`
+   - `VITE_API_URL`: `https://issue-tracking-system-7nly.onrender.com/api`
 4. **SPA Fallback Routing (`vercel.json`):**
    Vercel uses the included [`vercel.json`](./vercel.json) to redirect all client-side routes to `index.html`:
    ```json
@@ -152,5 +152,5 @@ npm run preview
 
 - **Production Public URL:** `https://issue-tracking-system-ten.vercel.app`
 - **Local Development Portal:** `http://localhost:3000`
-- **Connected Backend API:** `http://localhost:5001/api`
+- **Connected Backend API:** `https://issue-tracking-system-7nly.onrender.com/api`
 - **Master Documentation:** [Root README](../README.md) & [BRD](../brd.md)

@@ -210,7 +210,7 @@ erDiagram
 | `ADMIN_NAME` | Backend | Initial seeded administrator name | `System Administrator` |
 | `ADMIN_EMAIL` | Backend | Initial seeded administrator email | `admin@issuetrackr.com` |
 | `ADMIN_PASSWORD` | Backend | Initial administrator password | Complex password (min 8 chars) |
-| `VITE_API_URL` | Frontend | Base URL of live Render backend API | `https://your-backend-app.onrender.com/api` |
+| `VITE_API_URL` | Frontend | Base URL of live Render backend API | `https://issue-tracking-system-7nly.onrender.com/api` |
 
 ### 7.3 Step-by-Step Deployment Procedure
 1. **Provision Database (MongoDB Atlas):**
@@ -224,13 +224,13 @@ erDiagram
    - Start Command: `npm start`.
    - Add all required production environment variables.
    - Run `npm run create-admin` via the Render Shell tab.
-   - Copy assigned Render service URL (e.g., `https://issuetrackr-backend.onrender.com`).
+   - Copy assigned Render service URL (`https://issue-tracking-system-7nly.onrender.com`).
 3. **Deploy Frontend Application on Vercel:**
    - Import repository to [Vercel](https://vercel.com/dashboard).
    - Root Directory: `frontend`.
    - Framework Preset: `Vite`.
    - Build Command: `npm run build`, Output Directory: `dist`.
-   - Add Environment Variable: `VITE_API_URL=https://issuetrackr-backend.onrender.com/api`.
+   - Add Environment Variable: `VITE_API_URL=https://issue-tracking-system-7nly.onrender.com/api`.
    - Client routing handled by included `frontend/vercel.json` SPA rewrite rule.
    - Deploy and copy assigned Vercel URL (`https://issue-tracking-system-ten.vercel.app`).
 4. **Cross-Service CORS Sync:**
@@ -247,7 +247,7 @@ erDiagram
 
 ### 7.5 Current Deployment Status
 - **Frontend Public URL:** `https://issue-tracking-system-ten.vercel.app` *(Deployed on Vercel Edge CDN)*
-- **Backend Public API URL:** `Pending` *(Not yet deployed to a public cloud environment; runs locally at `http://localhost:5001/api`)*
+- **Backend Public API URL:** `https://issue-tracking-system-7nly.onrender.com/api` *(Deployed on Render Web Service)*
 
 ---
 

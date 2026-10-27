@@ -156,9 +156,9 @@ npm run preview --prefix frontend     # Serves frontend/dist locally
 | Service | Environment | URL | Status |
 | :--- | :--- | :--- | :--- |
 | **Frontend Production** | Public (Vercel) | `https://issue-tracking-system-ten.vercel.app` | 🟢 Active |
+| **Backend REST API** | Public (Render) | `https://issue-tracking-system-7nly.onrender.com/api` | 🟢 Active |
 | **Frontend Web App** | Local Development | `http://localhost:3000` | 🟢 Active |
-| **Backend REST API** | Local Development | `http://localhost:5001/api` | 🟢 Active |
-| **Backend Production** | Public (Render) | `Pending` | ⏳ Pending public deployment |
+| **Backend Local API** | Local Development | `http://localhost:5001/api` | 🟢 Active |
 
 ---
 

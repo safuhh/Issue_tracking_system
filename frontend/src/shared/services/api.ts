@@ -2,7 +2,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 
 import { store, RootState } from '../../store';
 import { clearCredentials, setCredentials, AuthUser } from '../../features/auth/store/authSlice';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://issue-tracking-system-7nly.onrender.com/api';
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
