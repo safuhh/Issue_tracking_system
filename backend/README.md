@@ -1,229 +1,157 @@
-# IssueTrackr — Backend REST API
+IssueTrackr — Backend API
+IssueTrackr's backend provides the REST API for authentication, issue management, developer assignments, comments, and dashboard data. It is built with Node.js, Express, TypeScript, and MongoDB using Mongoose.
+Features
+- User registration, login, logout, and access-token refresh.
+- JWT access tokens and an HttpOnly refresh-token cookie.
+- Role-based access control for user, developer, and admin roles.
+- Issue creation, editing, deletion, assignment, and status updates.
+- Issue comments with role- and issue-based access restrictions.
+- User management and dashboard statistics.
+- Request validation with Joi and password hashing with bcryptjs.
+Tech Stack
+Area	Technology
+Runtime	Node.js 18+
+Language	TypeScript
+API framework	Express
+Database	MongoDB
+ODM	Mongoose
+Authentication	JSON Web Tokens (JWT), cookie-parser
+Password hashing	bcryptjs
+Validation	Joi
+Cross-origin requests	CORS
 
-RESTful API backend for **IssueTrackr**, built with **Node.js**, **Express**, **TypeScript**, **MongoDB / Mongoose**, **JSON Web Tokens (JWT)**, and **Joi validation**.
 
----
-
-## 🚀 Tech Stack
-
-- **Runtime & Language:** Node.js (v18+), TypeScript (v5+)
-- **Web Framework:** Express v4 with MVC architecture
-- **Database & ODM:** MongoDB, Mongoose v8
-- **Authentication:** Dual-token JWT (HMAC-SHA256) with `jsonwebtoken`
-- **Security:** `bcryptjs` (password hashing, 12 rounds), `cookie-parser` (HttpOnly cookies), `cors` (credentialed origins)
-- **Validation:** Joi v18 schema validator middleware
-- **Development Tooling:** `nodemon`, `tsx`, `ts-node`
-
----
-
-## 🏛️ Architecture & Design Pattern
-
-The backend follows the **Model-View-Controller (MVC)** architectural pattern in TypeScript, optimized for high security and maintainability:
-
-```
-Request ──► CORS & CookieParser ──► Joi Validator ──► Auth Middleware ──► Role Guard ──► Controller ──► Mongoose Model ──► MongoDB
-                                                                                              │
-                                         JSON Response ◄──────────────────────────────────────┘
-```
-
-- **Models (`src/models/`):** Strongly-typed Mongoose schemas enforcing constraints, unique indexes, and defaults (`User`, `Issue`).
-- **Controllers (`src/controllers/`):** Pure request-response handlers separated by domain:
-  - `auth.controller.ts`: Registration, bcrypt login, dual-token rotation, and logout.
-  - `issues/`: Modular CRUD, assignment, comment thread, and status controllers.
-  - `users/`: Executive admin dashboard, developer portal metrics, and user CRUD.
-- **Routes (`src/routes/`):** Express routers mapping HTTP verbs to middleware pipelines (`auth.routes.ts`, `user.routes.ts`, `issue.routes.ts`).
-- **Middlewares (`src/middlewares/`):**
-  - `auth.middleware.ts`: Verifies `Bearer` access tokens and enforces RBAC roles (`authorize('admin')`, `authorize('developer', 'admin')`).
-  - `validate.middleware.ts`: Intercepts and validates request bodies using Joi schemas.
-- **Validators (`src/validators/`):** Centralized Joi schemas ensuring input sanitization before controllers execute.
-
-## 📁 Folder Structure
-
-```
+Architecture
+The backend follows an MVC-style structure. Express routes connect requests to middleware and controllers. Controllers handle request logic and use Mongoose models to read and update MongoDB documents.
+HTTP request
+  -> Express route
+  -> CORS / authentication / authorization / validation middleware
+  -> Controller
+  -> Mongoose model
+  -> MongoDB
+  -> JSON response
+Folder Structure
 backend/
-├── .env.example            # Environment variables template
-├── package.json            # Scripts & dependencies
-├── tsconfig.json           # TypeScript configuration
-├── dist/                   # Production compiled output
+├── .env.example
+├── package.json
+├── tsconfig.json
 └── src/
-    ├── config/             # Database connection (connectDB)
-    ├── controllers/        # Request controllers
-    │   ├── auth.controller.ts
-    │   ├── issues/         # issue.crud, issue.assignment, issue.comment, issue.status
-    │   └── users/          # admin.dashboard, developer.dashboard, user.management
-    ├── middlewares/        # authenticate, authorize, validate
-    ├── models/             # User and Issue Mongoose schemas
-    ├── routes/             # Express routes (auth.routes, user.routes, issue.routes)
-    ├── scripts/            # Database seeder (create-admin.ts)
-    ├── validators/         # Joi validation schemas
-    └── server.ts           # Server bootstrap & error handling
-```
-
----
-
-## 🗄️ Database Models
-
-### 1. User Model (`src/models/user.model.ts`)
-| Field | Type | Constraints | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `_id` | `ObjectId` | Auto PK | Auto | Unique document ID |
-| `name` | `String` | Trimmed, 2-50 chars | - | Full name |
-| `email` | `String` | Unique, lowercase, trimmed | - | Login email (Indexed) |
-| `password` | `String` | `select: false` | - | Salted bcrypt hash (12 salt rounds) |
-| `role` | `String` | Enum: `['user', 'developer', 'admin']` | `'user'` | Role-based authorization tier |
-| `refreshToken` | `String` | `select: false` | `null` | Active refresh token string |
-| `previousRefreshToken`| `String` | `select: false` | `null` | Grace period refresh token |
-| `createdBy` | `ObjectId` | Ref: `User` | `null` | Creator admin account |
-| `createdAt` | `Date` | Timestamp | `now` | Account creation date |
-| `updatedAt` | `Date` | Timestamp | `now` | Account last modified date |
-
-### 2. Issue Model (`src/models/issue.model.ts`)
-| Field | Type | Constraints | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `_id` | `ObjectId` | Auto PK | Auto | Unique issue ID |
-| `title` | `String` | Required, 3-120 chars | - | Summary headline of the bug |
-| `description` | `String` | Required, 5-2000 chars | - | Detailed reproduction steps |
-| `status` | `String` | Enum: `['pending', 'in-progress', 'closed']` | `'pending'` | Current issue stage (Indexed) |
-| `priority` | `String` | Enum: `['low', 'medium', 'high', 'critical']` | `'medium'` | Issue priority rating |
-| `submittedBy` | `ObjectId` | Required, Ref: `User` | - | Submitter account reference (Indexed) |
-| `assignedTo` | `ObjectId` | Ref: `User`, Optional | `null` | Assigned engineer reference (Indexed) |
-| `comments` | `Comment[]`| Subdocument array | `[]` | Embedded progress notes |
-| `createdAt` | `Date` | Timestamp | `now` | Issue creation date |
-| `updatedAt` | `Date` | Timestamp | `now` | Issue last modified date |
-
-### 3. Comment Subdocument Schema
-Embedded inside `Issue.comments`:
-- `_id`: `ObjectId` (Auto PK)
-- `content`: `String` (Required, 1-1500 chars)
-- `author`: `ObjectId` (Required, Ref: `User`)
-- `createdAt`: `Date` (Default: `Date.now`)
-
----
-
-## 📡 REST API Reference
-
-All routes are prefixed with `/api`. Protected routes require `Authorization: Bearer <access_token>`.
-
-### Authentication (`/api/auth`)
-| Method | Endpoint | Access Level | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Public | Register a new user |
-| `POST` | `/api/auth/login` | Public | Sign in & receive access token + refresh cookie |
-| `POST` | `/api/auth/refresh-token` | Public (Cookie) | Silently refresh access token via HttpOnly cookie |
-| `POST` | `/api/auth/logout` | Public | Invalidate refresh token and clear cookie |
-| `GET` | `/api/auth/me` | Authenticated | Retrieve authenticated user profile |
-
-### User Management (`/api/users`)
-| Method | Endpoint | Access Level | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/users/profile` | Authenticated | Fetch current user profile (`getMe`) |
-| `GET` | `/api/users/admin` | Admin Only | Get admin stats, recent users, and issues |
-| `GET` | `/api/users/dev` | Dev & Admin | Get developer metrics and active issues |
-| `POST` | `/api/users` | Admin Only | Create user account with explicit role |
-| `PUT` | `/api/users/:id` | Admin Only | Full update of user account by ID |
-| `PATCH` | `/api/users/:id` | Admin Only | Partial update of user account by ID |
-| `DELETE` | `/api/users/:id` | Admin Only | Permanently delete a user account |
-
-### Issue Management (`/api/issues`)
-| Method | Endpoint | Access Level | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/issues` | Authenticated | Submit a new issue ticket |
-| `GET` | `/api/issues/my` | Authenticated | Get tickets submitted by logged-in user |
-| `GET` | `/api/issues/assigned` | Dev & Admin | Get issues assigned to logged-in developer |
-| `GET` | `/api/issues/stream` | Dev & Admin | Server-Sent Events (SSE) stream for real-time updates |
-| `GET` | `/api/issues` | Admin Only | View all submitted issues with optional filters |
-| `GET` | `/api/issues/stats` | Admin Only | Issue count breakdown by status and priority |
-| `GET` | `/api/issues/developers`| Admin Only | Get developer list for assignment dropdowns |
-| `PATCH` | `/api/issues/:id/assign` | Admin Only | Assign or unassign an issue to a developer |
-| `PATCH` | `/api/issues/:id/status` | Dev & Admin | Update ticket status (`pending`, `in-progress`, `closed`) |
-| `POST` | `/api/issues/:id/comments` | Dev & Admin | Add progress note or comment to ticket |
-| `GET` | `/api/issues/:id/comments` | Submitter/Dev/Admin | Fetch comment thread for an issue |
-| `PUT` | `/api/issues/:id` | Submitter / Admin | Edit issue title, description, or priority |
-| `PATCH` | `/api/issues/:id` | Submitter / Admin | Partial update of issue details |
-| `DELETE` | `/api/issues/:id` | Submitter / Admin | Delete an issue |
-
----
-
-## ⚙️ Environment Variables
-
-Create `.env` inside `backend/`:
-```bash
-cp .env.example .env
-```
-
-| Variable | Required | Default | Description |
-| :--- | :---: | :--- | :--- |
-| `PORT` | Yes | `5001` | Server listener port |
-| `NODE_ENV` | Yes | `development` | Environment mode (`development` / `production`) |
-| `CLIENT_URL` | Yes | `https://issue-tracking-system-ten.vercel.app` | Allowed CORS frontend origin |
-| `MONGODB_URI` | Yes | `mongodb://localhost:27017/issue_tracker` | MongoDB connection URI |
-| `ACCESS_TOKEN_SECRET` | Yes | - | Secret for signing short-lived JWT access tokens |
-| `REFRESH_TOKEN_SECRET`| Yes | - | Secret for signing 7-day refresh tokens |
-| `ACCESS_TOKEN_EXPIRES_IN`| No | `15m` | Token expiry duration |
-| `REFRESH_TOKEN_EXPIRES_IN`| No | `7d` | Refresh cookie lifespan |
-| `ADMIN_NAME` | Yes | `System Administrator` | Initial admin account name |
-| `ADMIN_EMAIL` | Yes | `admin@issuetrackr.com` | Initial admin account email |
-| `ADMIN_PASSWORD` | Yes | `AdminPassword123!` | Initial admin password (&ge; 8 characters) |
-
----
-
-## 💻 Setup, Installation & Running
-
-```bash
-# 1. Install dependencies
+    ├── config/        # Database connection
+    ├── controllers/   # Authentication, issue, and user handlers
+    │   ├── issues/    # Issue operations, assignment, status, comments
+    │   └── users/     # User management and dashboard handlers
+    ├── middlewares/   # Authentication, authorization, validation
+    ├── models/        # User and Issue schemas
+    ├── routes/        # Express route definitions
+    ├── scripts/       # Initial administrator setup script
+    ├── validators/    # Joi schemas
+    └── server.ts      # Server entry point
+The dist/ directory is generated by the production build and should not be edited manually.
+Prerequisites
+- Node.js 18 or later and npm.
+- A local MongoDB instance or a MongoDB Atlas cluster.
+Installation and Local Setup
+Run these commands from the repository root:
+cd backend
 npm install
-
-
-
-# 3. Start development server (Port 5001)
+cp .env.example .env
+Update backend/.env with your MongoDB connection string and private token secrets. Then start the development server:
 npm run dev
+The API uses port 5001 locally when no other PORT value is configured.
+Common Scripts
+Command	Purpose
+npm run dev	Start the development server
+npm run build	Compile TypeScript for production
+npm start	Start the compiled server
+npm run create-admin	Create the initial administrator from environment variables
+npx tsc --noEmit	Check TypeScript types without emitting build files
 
-# 4. Check TypeScript types
+
+These commands should match the scripts defined in backend/package.json.
+Environment Variables
+Set these values in backend/.env for local development and in Render's Environment settings for deployment.
+Variable	Purpose
+PORT	Port used by the server; Render provides a port in production
+NODE_ENV	Runtime environment, such as development or production
+CLIENT_URL	Frontend origin allowed by CORS, e.g. https://issue-tracking-system-ten.vercel.app
+MONGODB_URI	MongoDB connection string
+ACCESS_TOKEN_SECRET	Private signing secret for access tokens
+REFRESH_TOKEN_SECRET	Private signing secret for refresh tokens
+ACCESS_TOKEN_EXPIRES_IN	Access-token lifetime, if configured (e.g. 15m)
+REFRESH_TOKEN_EXPIRES_IN	Refresh-token lifetime, if configured (e.g. 7d)
+ADMIN_NAME	Name for the initial administrator created by the seed script
+ADMIN_EMAIL	Email for the initial administrator created by the seed script
+ADMIN_PASSWORD	Strong password for the initial administrator created by the seed script
+
+
+Keep .env files and production secrets private. Commit .env.example with placeholder values instead of real credentials.
+Database Models
+User
+Stores the user's name, normalized email, hashed password, role, refresh-token data, creator reference where applicable, and timestamps. The supported roles are user, developer, and admin.
+Issue
+Stores the title, description, status, priority, submitter, assigned developer, comments, and timestamps.
+- Status: pending, in-progress, closed
+- Priority: low, medium, high, critical
+- Comments: Embedded records containing comment text, author reference, and creation time.
+The Mongoose schemas define the authoritative fields, defaults, indexes, and validation rules.
+API Reference
+The API uses the /api prefix. Protected endpoints use an access token in the Authorization: Bearer <access_token> header. The refresh flow uses the HttpOnly cookie configured by the server.
+Authentication
+Method	Endpoint	Access	Purpose
+POST	/api/auth/register	Public	Register an account
+POST	/api/auth/login	Public	Authenticate and issue tokens
+POST	/api/auth/refresh-token	Refresh cookie	Refresh the access token
+POST	/api/auth/logout	Public / session cookie	Clear the refresh-token session
+
+
+Users
+Method	Endpoint	Access	Purpose
+GET	/api/users/profile	Authenticated	Get the current user's profile
+GET	/api/users/admin	Admin	Get administrator dashboard data
+GET	/api/users/dev	Developer / Admin	Get developer portal data
+GET	/api/users	Admin	List users
+POST	/api/users	Admin	Create a user
+PUT	/api/users/:id	Admin	Update user details
+PATCH	/api/users/:id	Admin	Partially update user details
+DELETE	/api/users/:id	Admin	Delete a user
+
+
+Issues
+Method	Endpoint	Access	Purpose
+POST	/api/issues	Authenticated	Create an issue
+GET	/api/issues/my	Authenticated	List issues submitted by the current user
+GET	/api/issues/assigned	Developer / Admin as authorized	List assigned issues
+GET	/api/issues	Admin	List issues with supported filters
+GET	/api/issues/stats	Admin	Get issue statistics
+GET	/api/issues/developers	Admin	List developers for assignment
+PATCH	/api/issues/:id/assign	Admin	Assign or unassign an issue
+PATCH	/api/issues/:id/status	Admin / assigned developer	Update issue status
+POST	/api/issues/:id/comments	Admin / assigned developer	Add a comment
+GET	/api/issues/:id/comments	Submitter / assigned developer / Admin	Read issue comments
+PUT	/api/issues/:id	Submitter / Admin	Update issue details
+DELETE	/api/issues/:id	Submitter / Admin	Delete an issue
+
+
+Route availability and permissions are enforced by the backend. Keep this reference aligned with the route definitions and authorization middleware in the source code.
+Testing and Build Verification
+Run from the backend/ directory:
 npx tsc --noEmit
-
-# 5. Build for production (outputs to dist/)
 npm run build
-
-# 6. Start production server
-npm start
-```
-
----
-
-## 🚢 Production Deployment
-
-### Deploying to Render (Web Service)
-
-1. **Create Web Service:**
-   - In [Render Dashboard](https://dashboard.render.com), click **New +** &rarr; **Web Service** and connect this repository.
-2. **Build & Runtime Configuration:**
-   - **Root Directory:** `backend`
-   - **Environment:** `Node`
-   - **Build Command:** `npm install && npm run build`
-   - **Start Command:** `npm start`
-3. **Environment Variables on Render:**
-   - `NODE_ENV`: `production`
-   - `CLIENT_URL`: `https://issue-tracking-system-ten.vercel.app` (your Vercel frontend URL)
-   - `MONGODB_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/issue_tracker?retryWrites=true&w=majority`
-   - `ACCESS_TOKEN_SECRET`: `<secure-random-32+-char-string>`
-   - `REFRESH_TOKEN_SECRET`: `<secure-random-32+-char-string>`
-   - `ACCESS_TOKEN_EXPIRES_IN`: `15m`
-   - `REFRESH_TOKEN_EXPIRES_IN`: `7d`
-   - `ADMIN_NAME`: `System Administrator`
-   - `ADMIN_EMAIL`: `admin@issuetrackr.com`
-   - `ADMIN_PASSWORD`: `<strong-password>`
-4. **Seed Administrator:**
-   Open the Render **Shell** tab after the initial build succeeds and run:
-   ```bash
-   npm run create-admin
-   ```
-5. **Auto-Deploy:**
-   Pushes to your GitHub branch automatically trigger rolling zero-downtime rebuilds on Render.
-
----
-
-## 🌐 Service URLs
-
-- **Local Development API:** `http://localhost:5001/api`
-- **Production Public API:** `https://issue-tracking-system-7nly.onrender.com/api`
-- **Master Documentation:** [Root README](../README.md) & [BRD](../brd.md)
+If automated tests are configured, run the test script defined in package.json. Test authentication, role permissions, issue operations, assignment, status changes, and comments against the configured database.
+Deployment on Render
+The backend is hosted as a Render Web Service.
+1. Import the GitHub repository into Render.
+2. Set Root Directory to backend.
+3. Set Build Command to npm install && npm run build.
+4. Set Start Command to npm start.
+5. Configure the required environment variables in Render. Do not upload or commit the local .env file.
+6. Confirm that MongoDB Atlas network access and database credentials allow the Render service to connect.
+7. Run the administrator seed command if an admin account has not already been created.
+8. Deploy and check the service logs to confirm that the server and database connect successfully.
+When auto-deploy is enabled, pushes to the connected Git branch can trigger a new deployment. After deploying, verify the API and test login from the frontend.
+Project URLs
+- Production API: https://issue-tracking-system-7nly.onrender.com/api
+- Frontend: https://issue-tracking-system-ten.vercel.app/
+- GitHub repository: https://github.com/safuhh/Issue_tracking_system
+- Root README: [`../README.md`](../README.md)
+- Business Requirements Document: [`../brd.md`](../brd.md)

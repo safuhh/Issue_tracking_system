@@ -1,156 +1,97 @@
-# IssueTrackr — Frontend Web Application
+IssueTrackr — Frontend
+The IssueTrackr frontend is a React single-page application for submitting and tracking issues, managing assigned developer work, and viewing administrative dashboards.
 
-Modern Single Page Application (SPA) for **IssueTrackr**, built with **React 18**, **TypeScript**, **Vite**, **Tailwind CSS v4**, **Redux Toolkit**, and **React Router DOM v7**.
+Live application: https://issue-tracking-system-ten.vercel.app/
+Backend API: https://issue-tracking-system-7nly.onrender.com/api
 
----
-
-## 🚀 Tech Stack
-
-- **Framework & Bundler:** React 18, Vite v5 with `@vitejs/plugin-react`
-- **Language:** TypeScript (v5+) with strict type checking
-- **Styling:** Tailwind CSS v4 with `@tailwindcss/vite` plugin
-- **State Management:** Redux Toolkit (`@reduxjs/toolkit`, `react-redux`)
-- **Client Routing:** React Router DOM v7 with role-guarded `ProtectedRoute`
-- **HTTP Client:** Axios v1.20 with request/response interceptors and silent token refresh queue
-
----
-
-## 🏛️ Architecture & Design Pattern
-
-The frontend is structured using a **Feature-Sliced Architecture** with **Redux Toolkit** and **Axios Interceptors**:
-
-```
-User Action ──► UI Feature Component ──► Feature Service ──► Axios Client (api.ts) ──► Express Backend
-                         │                                           │
-                         ▼                                           ▼
-                 Redux Toolkit Store ◄─────────────────── Silent Token Refresh
-```
-
-- **Feature-Sliced Modules (`src/features/`):**
-  - **`auth`:** Login, registration, profile views, and session slice (`authSlice.ts`).
-  - **`issues`:** Issue reporting forms, personal ticket lists, triage modals, and decoupled services.
-  - **`developer`:** Developer queue (`/dev`), status update toggles, and sprint stats.
-  - **`admin`:** Executive dashboard (`/admin`), user management CRUD tables, and developer assignment modals.
-- **Shared Utilities (`src/shared/`):** Shared navigation (`Navbar.tsx`) and the central Axios API client (`api.ts`).
-- **Role-Guarded Routing (`src/components/ProtectedRoute.tsx`):** Protects routes by evaluating active Redux user roles before rendering components.
-- **Silent Token Refresh Queue:** Automatically catches expired JWT access tokens and seamlessly refreshes them via the HttpOnly cookie without losing in-flight requests.
-
-## 📁 Folder Structure
-
-```
+For project-wide requirements and the overall repository setup, see the [root README](../README.md) and [Business Requirements Document](../brd.md).
+Tech Stack
+- React 18 and TypeScript
+- Vite
+- Tailwind CSS v4
+- Redux Toolkit and React-Redux
+- React Router DOM
+- Axios
+Frontend Features
+- Registration, login, profile, and authenticated session handling
+- Role-based pages for users, developers, and administrators
+- Issue creation and personal issue tracking
+- Developer views for assigned issues, status updates, and comments
+- Admin views for issue oversight, developer assignment, and user management
+- Shared API client for backend requests and token-refresh handling
+- Responsive interface for desktop and mobile screens
+Architecture
+The frontend uses a feature-based modular structure. Feature-specific pages, components, services, and types are grouped by area, while shared UI, API configuration, and global state are kept in shared locations.
 frontend/
-├── index.html              # HTML document root
-├── package.json            # Scripts & dependencies
-├── vite.config.ts          # Vite configuration & dev proxy
-├── tsconfig.json           # TypeScript configuration
-├── dist/                   # Production compiled output
+├── index.html
+├── package.json
+├── vite.config.ts
+├── vercel.json
 └── src/
-    ├── App.tsx             # Route definitions & Role-based guards
-    ├── main.tsx            # React root mount & providers (Redux, AuthProvider)
-    ├── index.css           # Tailwind CSS entrypoint
-    ├── features/           # Feature-sliced modules
-    │   ├── admin/          # Admin dashboard, user management table, modals
-    │   ├── auth/           # Login, Register, Profile, AuthProvider, authService, authSlice
-    │   ├── developer/      # Developer issue table, stats banner, filters
-    │   └── issues/         # Issue forms, tables, modals & modular issue services
-    │       └── services/   # types, management, assignment, comments, stats, facade
-    ├── shared/             # Shared components (Navbar) & Axios client (api.ts)
-    └── store/              # Redux store configuration
-```
+    ├── App.tsx
+    ├── main.tsx
+    ├── index.css
+    ├── features/
+    │   ├── auth/
+    │   ├── issues/
+    │   ├── developer/
+    │   └── admin/
+    ├── shared/
+    │   └── services/
+    │       └── api.ts
+    └── store/
+The exact contents of each feature folder may evolve; this overview shows the main module boundaries.
+Routes
+Route	Purpose	Access
+/	Home page and user issue view	Public / authenticated user, depending on session
+/login	Sign in	Public
+/register	Create a user account	Public
+/profile	View the signed-in user's profile	Authenticated
+/dev	Developer workspace	Developer and permitted admin users
+/admin	Administrative dashboard and user management	Admin
+/unauthorized	Access-denied page	Public
 
----
 
-## 🧭 Routes & Role Access Control
-
-| Route | Component | Permitted Roles | Description |
-| :--- | :--- | :--- | :--- |
-| `/` | `Home` | Everyone / User | Welcome banner for guests; Issue intake and tracking for logged-in users |
-| `/login` | `Login` | Public | Sign in to account. Redirects to designated role dashboard |
-| `/register` | `Register` | Public | Create a new user account |
-| `/profile` | `Profile` | Authenticated | View authenticated user name, email, and assigned role |
-| `/dev` | `DeveloperDashboard` | Developer & Admin | Triage assigned tickets, advance status, and write technical notes |
-| `/admin` | `AdminDashboard` | Admin Only | Global metrics, ticket triage, developer assignment, and user CRUD |
-| `/unauthorized`| `Unauthorized` | Public | Access denied message when lacking required permissions |
-
----
-
-## 🔌 Modular Issue Services (`src/features/issues/services/`)
-
-To keep code maintainable, issue operations are decoupled into focused service files:
-
-- **`types.ts`:** Shared TypeScript interfaces (`Issue`, `IssueStatus`, `IssuePriority`, payloads, responses).
-- **`issue.management.service.ts`:** Core issue operations (`createIssue`, `getMyIssues`, `getAllIssues`, `updateIssue`, `deleteIssue`, `updateIssueStatus`).
-- **`issue.assignment.service.ts`:** Developer assignment functions (`assignIssue`, `getDevelopers`).
-- **`issue.comments.service.ts`:** Comment thread operations (`addComment`, `getComments`).
-- **`issue.stats.service.ts`:** Metric aggregation (`getIssueStats`).
-- **`issueService.ts`:** Unified facade combining all services into a single clean API export.
-
----
-
-## 🔒 Silent Token Refresh & Axios Client (`src/shared/services/api.ts`)
-
-- **Dual-Token System:** Short-lived access token is stored securely in memory within Redux Toolkit (`authSlice`). The long-lived refresh token is maintained in an `HttpOnly`, `SameSite` browser cookie.
-- **Request Interceptor:** Automatically injects the active access token via `Authorization: Bearer <token>`.
-- **Response Interceptor:** Automatically intercepts `401 Unauthorized` responses and silently requests a new access token via `/api/auth/refresh-token`. In-flight requests are queued and re-executed without user interruption.
-
----
-
-## 💻 Setup, Installation & Running
-
-```bash
-# 1. Install dependencies
+The backend must enforce authorization independently; frontend route protection alone is not a security boundary.
+Prerequisites
+- Node.js 18 or later
+- npm
+- Access to the IssueTrackr backend API
+Installation and Local Development
+From this directory (frontend/), run:
 npm install
-
-# 2. Start Vite development server (Port 3000)
+Create a local environment file if the application uses one, then set the API base URL as described below. Start the development server:
 npm run dev
+Open the local URL printed by Vite in the terminal. If your Vite configuration explicitly sets port 3000, the address will be http://localhost:3000; otherwise, use the port printed by the command.
+Environment Variables
+Configure the frontend API base URL using the environment variable expected by src/shared/services/api.ts. The current project documentation names it VITE_API_URL:
+VITE_API_URL=https://issue-tracking-system-7nly.onrender.com/api
+For local development, use the appropriate local API URL if needed. Vite exposes variables prefixed with VITE_ to browser code, so do not put passwords, private keys, database credentials, or other secrets in frontend environment variables.
 
-# 3. Check TypeScript types
+Keep local .env files out of Git. Commit a placeholder-only .env.example when a setup template is useful.
+Useful Commands
+Run these commands from frontend/:
+# Type-check the frontend
 npx tsc --noEmit
 
-# 4. Build for production (outputs to dist/)
+# Create a production build in dist/
 npm run build
 
-# 5. Preview production build locally
+# Preview the production build locally
 npm run preview
-```
-
----
-
-## 🚢 Production Deployment
-
-### Deploying to Vercel
-
-1. **Import Project into Vercel:**
-   - In [Vercel Dashboard](https://vercel.com/dashboard), click **Add New...** &rarr; **Project** and select this repository.
-2. **Build Settings:**
-   - **Framework Preset:** `Vite`
-   - **Root Directory:** `frontend`
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-   - **Install Command:** `npm install`
-3. **Environment Variables on Vercel:**
-   Add the following environment variable to connect to your live Render backend:
-   - `VITE_API_URL`: `https://issue-tracking-system-7nly.onrender.com/api`
-4. **SPA Fallback Routing (`vercel.json`):**
-   Vercel uses the included [`vercel.json`](./vercel.json) to redirect all client-side routes to `index.html`:
-   ```json
-   {
-     "rewrites": [
-       {
-         "source": "/(.*)",
-         "destination": "/index.html"
-       }
-     ]
-   }
-   ```
-5. **Cross-Service Sync:**
-   Once deployed, update the `CLIENT_URL` environment variable on your Render backend with your Vercel assigned domain (`https://issue-tracking-system-ten.vercel.app`).
-
----
-
-## 🌐 Service URLs
-
-- **Production Public URL:** `https://issue-tracking-system-ten.vercel.app`
-- **Local Development Portal:** `http://localhost:3000`
-- **Connected Backend API:** `https://issue-tracking-system-7nly.onrender.com/api`
-- **Master Documentation:** [Root README](../README.md) & [BRD](../brd.md)
+Deployment to Vercel
+The frontend is deployed on Vercel from the frontend/ directory in the shared repository.
+1. Import the GitHub repository into Vercel.
+2. Set Root Directory to frontend.
+3. Select the Vite framework preset.
+4. Set Build Command to npm run build and Output Directory to dist.
+5. Add the frontend API environment variable in Vercel Project Settings. Ensure its name matches the variable read by src/shared/services/api.ts.
+6. Confirm vercel.json contains the SPA rewrite configuration required for client-side routes.
+7. Deploy the project and test registration/login, protected routes, issue actions, and API requests against the deployed backend.
+The backend must allow the deployed Vercel origin through its CORS configuration. Configure that origin in the backend hosting environment; do not store backend secrets in this frontend project.
+URLs
+- Production frontend: https://issue-tracking-system-ten.vercel.app/
+- Backend API base URL: https://issue-tracking-system-7nly.onrender.com/api
+- Root project README: [README.md](../README.md)
+- Backend documentation: [README.md](../backend/README.md)
+- BRD: [brd.md](../brd.md)

@@ -1,169 +1,73 @@
-# IssueTrackr — Issue Tracking & Developer Coordination System
+IssueTrackr — Issue Tracking System
+IssueTrackr is a full-stack issue tracking application that helps users report issues, developers work on assigned issues, and administrators manage assignments, users, and progress.
+Live Application
+- Frontend: https://issue-tracking-system-ten.vercel.app/
+- Backend API: https://issue-tracking-system-7nly.onrender.com/api
+- Source code: https://github.com/safuhh/Issue_tracking_system
+The backend is hosted on Render's free service, so its first request after inactivity may take longer while the service wakes up.
 
-A full-stack, enterprise-grade issue tracking and task coordination platform built with **React 18**, **TypeScript**, **Vite**, **Tailwind CSS v4**, **Redux Toolkit**, **Node.js**, **Express**, and **MongoDB (Mongoose)**.
+Features
+- User registration and login with role-based access for user, developer, and admin.
+- Create, view, edit, and delete issues according to the user's permissions.
+- Assign issues to developers and track their status.
+- Add and view comments on authorized issues.
+- Admin dashboard with issue counts, user management, and issue assignment.
+- Developer workspace for viewing assigned issues and updating their status.
+- JWT-based authentication with an HTTP-only refresh-token cookie.
+Tech Stack
+Area	Technologies
+Frontend	React, TypeScript, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios
+Backend	Node.js, Express, TypeScript, Mongoose, JWT, bcryptjs, Joi
+Database	MongoDB / MongoDB Atlas
+Hosting	Vercel (frontend), Render (backend), MongoDB Atlas (database)
 
----
 
-## 📚 Project Documentation
-
-The repository documentation is modularly divided across four dedicated documents:
-
-| Document | Focus & Content |
-| :--- | :--- |
-| 📋 **[Business Requirements Document (BRD)](./brd.md)** | Business objectives, user roles, functional/non-functional requirements, system architecture, database ERD, deployment plan, and acceptance criteria. |
-| ⚙️ **[Backend Documentation (`backend/README.md`)](./backend/README.md)** | Express + TypeScript MVC architecture, Mongoose database models, complete REST API reference, environment variables, admin seeding, and Render deployment. |
-| 💻 **[Frontend Documentation (`frontend/README.md`)](./frontend/README.md)** | React 18 + Vite architecture, feature modules, Redux state slices, Axios silent token refresh, modular issue services, client routing, and Vercel deployment. |
-
----
-
-## 🚀 Tech Stack Summary
-
-| Tier | Technologies | Purpose |
-| :--- | :--- | :--- |
-| **Frontend** | React 18, Vite v5, TypeScript | Single Page Application (SPA) with fast Hot Module Replacement |
-| **Styling** | Tailwind CSS v4, PostCSS | Modern, responsive component styling |
-| **State Management** | Redux Toolkit, React-Redux | Centralized authentication session and UI state |
-| **Client Routing** | React Router DOM v7 | Role-based protected routes (`ProtectedRoute`) |
-| **HTTP Client** | Axios v1.20 | Dual-token request interceptor and silent refresh queue |
-| **Backend API** | Node.js (v18+), Express v4, TypeScript | Modular MVC REST API with route-level validation |
-| **Database & ODM** | MongoDB, Mongoose v8 | Document database with schema typing and indexes |
-| **Authentication** | JWT, bcryptjs, cookie-parser | Access token in memory + HttpOnly refresh token cookie |
-| **Input Validation** | Joi v18 | Schema validation middleware for request payloads |
-
----
-
-## ✨ Key Features
-
-- **Role-Based Access Control (RBAC):** Distinct interfaces, routes, and authorization rules for `user`, `developer`, and `admin`.
-- **Dual-Token Authentication Lifecycle:**
-  - Short-lived access token stored in memory (15-minute lifespan).
-  - Refresh token stored securely in an `HttpOnly`, `SameSite` browser cookie (7-day lifespan).
-  - Axios response interceptor silently refreshes expired access tokens without user interruption.
-- **User Issue Intake & Tracking:** Submit defect reports with priority levels (`low`, `medium`, `high`, `critical`), track personal ticket statuses, edit/delete pending tickets, and view developer progress notes.
-- **Developer Workspace (`/dev`):** View tickets assigned specifically to the logged-in engineer, transition status (`pending` &rarr; `in-progress` &rarr; `closed`), and publish technical progress comments.
-- **Executive Admin Governance (`/admin`):** Real-time summary metrics (Total, Pending, In-Progress, Closed), global ticket triage, developer assignment, and user management (create, update roles, delete).
-- **Real-Time Event Stream:** Server-Sent Events (SSE) route (`GET /api/issues/stream`) broadcasting status and assignment updates.
-
----
-
-## 📁 Repository Structure
-
-```
-man/
-├── brd.md                      # Comprehensive Business Requirements Document
-├── README.md                   # Workspace entry point & quickstart
-├── backend/                    # Node.js + Express + TypeScript REST API
-│   ├── README.md               # Backend technical documentation & API reference
-│   ├── .env.example            # Environment variables template
-│   ├── package.json            # Server dependencies & scripts
-│   ├── tsconfig.json           # TypeScript configuration
-│   ├── dist/                   # Production compiled JavaScript
-│   └── src/
-│       ├── config/             # Database connection (connectDB)
-│       ├── controllers/        # Request controllers (auth, users, issues)
-│       ├── middlewares/        # Auth, role guard (RBAC), and validation
-│       ├── models/             # Mongoose models (User, Issue)
-│       ├── routes/             # Express route declarations
-│       ├── scripts/            # Admin account seeder (create-admin.ts)
-│       ├── validators/         # Joi validation schemas
-│       └── server.ts           # Server bootstrap & error handling
-└── frontend/                   # React 18 + Vite + TypeScript Application
-    ├── README.md               # Frontend architecture & service documentation
-    ├── index.html              # HTML document root
-    ├── vercel.json             # Vercel SPA routing rewrite rule
-    ├── package.json            # Client dependencies & scripts
-    ├── vite.config.ts          # Vite configuration & dev proxy
-    ├── tsconfig.json           # TypeScript configuration
-    ├── dist/                   # Production bundled static assets
-    └── src/
-        ├── App.tsx             # Routes & role-guarded ProtectedRoute
-        ├── main.tsx            # React root mount with Redux & AuthProvider
-        ├── index.css           # Tailwind CSS v4 entrypoint
-        ├── features/           # Feature-sliced modules (admin, auth, dev, issues)
-        ├── shared/             # Shared components (Navbar) & Axios client (api.ts)
-        └── store/              # Redux Toolkit store configuration
-```
-
----
-
-## ⚡ Quick Start: Running Locally (From Repository Root)
-
-Run the full stack locally from the repository root in four steps:
-
-### 1. Prerequisites
-- **Node.js** (v18.0.0 or higher) & **npm** (v9.0.0 or higher)
-- **MongoDB** running locally (`mongodb://localhost:27017/issue_tracker`) or a remote **MongoDB Atlas** cluster URI
-
-### 2. Install Dependencies
-```bash
-npm install --prefix backend && npm install --prefix frontend
-```
-
-### 3. Configure Environment Variables
-```bash
+Repository Structure
+Issue_tracking_system/
+├── README.md              # Project overview and quick start
+├── brd.md                 # Business Requirements Document
+├── frontend/              # React + Vite application
+│   └── README.md           # Frontend setup and deployment details
+└── backend/               # Express REST API
+    └── README.md           # Backend setup, API reference, and deployment details
+For implementation details, use the dedicated [frontend README](./frontend/README.md), [backend README](./backend/README.md), and [Business Requirements Document](./brd.md).
+Run Locally
+Prerequisites
+- Node.js 18 or later and npm
+- MongoDB running locally or a MongoDB Atlas connection string
+1. Install dependencies
+From the repository root:
+npm install --prefix backend
+npm install --prefix frontend
+2. Configure the backend
+Copy the environment template and update its values:
 cp backend/.env.example backend/.env
-```
-*(Optionally adjust `backend/.env` with your MongoDB URI or JWT secrets).*
-
-### 4. Seed Admin Account & Start Servers
-```bash
-# Seed initial admin account (admin@issuetrackr.com / AdminPassword123!)
-npm run create-admin --prefix backend
-
-# Start both servers (in separate terminals or background):
-npm run dev --prefix backend    # Backend API: http://localhost:5001
-npm run dev --prefix frontend   # Frontend Web App: http://localhost:3000
-```
-
-Open **`http://localhost:3000`** in your browser.
-
----
-
-## 🧪 Verification & Production Builds (From Repository Root)
-
-```bash
-# Type check both codebases
+Set the database URI, JWT secrets, frontend origin, and any other variables required by backend/.env.example. Keep real secrets in local environment files or hosting-platform settings; never commit them to GitHub.
+3. Configure the frontend
+Create frontend/.env and set the API base URL using the variable name expected by the frontend API client. For the deployed backend, the value is:
+VITE_API_URL=https://issue-tracking-system-7nly.onrender.com/api
+If your API client uses a different environment-variable name, use that exact name instead. Do not put private credentials in VITE_ variables because frontend variables are exposed to the browser.
+4. Create the initial admin account
+Follow the seeding instructions in [Backend Documentation](./backend/README.md). Configure the admin credentials through environment variables; do not use sample credentials in a public repository.
+5. Start the applications
+Run each command in a separate terminal from the repository root:
+npm run dev --prefix backend
+npm run dev --prefix frontend
+Open the local frontend URL printed by Vite in your terminal. Confirm the backend port and API prefix in the backend configuration.
+Build and Type Checks
+Run from the repository root:
 (cd backend && npx tsc --noEmit)
 (cd frontend && npx tsc --noEmit)
-
-# Build both applications for production
 npm run build --prefix backend
 npm run build --prefix frontend
-
-# Run production preview
-npm start --prefix backend            # Runs node backend/dist/server.js
-npm run preview --prefix frontend     # Serves frontend/dist locally
-```
-
----
-
-## 🚢 Deployment Architecture
-
-| Tier | Target Platform | Build Command | Output / Start | Configuration |
-| :--- | :--- | :--- | :--- | :--- |
-| **Backend API** | **Render** (Web Service) | `npm install && npm run build` | `npm start` | Root: `backend`, Environment: `Node`, Node 18+ |
-| **Frontend App** | **Vercel** (Edge CDN) | `npm run build` | `dist` | Root: `frontend`, Framework: `Vite`, `vercel.json` |
-| **Database** | **MongoDB Atlas** | - | M0/M10 Cluster | Whitelist Render IP or `0.0.0.0/0` |
-
-*For detailed, step-by-step deployment instructions:*
-- Backend deployment on Render: See [`backend/README.md`](./backend/README.md#-production-deployment-on-render)
-- Frontend deployment on Vercel: See [`frontend/README.md`](./frontend/README.md#-production-deployment-on-vercel)
-
----
-
-## 🌐 Application URLs
-
-| Service | Environment | URL | Status |
-| :--- | :--- | :--- | :--- |
-| **Frontend Production** | Public (Vercel) | `https://issue-tracking-system-ten.vercel.app` | 🟢 Active |
-| **Backend REST API** | Public (Render) | `https://issue-tracking-system-7nly.onrender.com/api` | 🟢 Active |
-| **Frontend Web App** | Local Development | `http://localhost:3000` | 🟢 Active |
-| **Backend Local API** | Local Development | `http://localhost:5001/api` | 🟢 Active |
-
----
-
-## 📖 Detailed Guides
-
-- For complete functional specifications, user stories, and acceptance matrices &rarr; **[`brd.md`](./brd.md)**
-- For backend models, schema specifications, and all REST endpoints &rarr; **[`backend/README.md`](./backend/README.md)**
-- For frontend components, modular issue services, and state architecture &rarr; **[`frontend/README.md`](./frontend/README.md)**
+See the individual README files for any project-specific test scripts and additional verification steps.
+Deployment Overview
+- Database: Create a MongoDB Atlas cluster and configure its database credentials and network access.
+- Backend: Deploy the backend directory as a Render Web Service. Configure the required backend environment variables and the production frontend origin for CORS.
+- Frontend: Deploy the frontend directory to Vercel. Configure the frontend API URL to point to the deployed Render API, then redeploy.
+- Updates: Push changes to the connected GitHub branch and check the Render and Vercel deployment logs after each deployment.
+Detailed setup, environment-variable lists, API endpoints, and platform-specific deployment steps are documented in [backend/README.md](./backend/README.md) and [frontend/README.md](./frontend/README.md).
+Documentation
+- [Business Requirements Document (BRD)](./brd.md)
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
