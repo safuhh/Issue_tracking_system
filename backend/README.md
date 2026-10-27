@@ -155,7 +155,7 @@ cp .env.example .env
 | :--- | :---: | :--- | :--- |
 | `PORT` | Yes | `5001` | Server listener port |
 | `NODE_ENV` | Yes | `development` | Environment mode (`development` / `production`) |
-| `CLIENT_URL` | Yes | `http://localhost:3000` | Allowed CORS frontend origin |
+| `CLIENT_URL` | Yes | `https://issue-tracking-system-ten.vercel.app` | Allowed CORS frontend origin |
 | `MONGODB_URI` | Yes | `mongodb://localhost:27017/issue_tracker` | MongoDB connection URI |
 | `ACCESS_TOKEN_SECRET` | Yes | - | Secret for signing short-lived JWT access tokens |
 | `REFRESH_TOKEN_SECRET`| Yes | - | Secret for signing 7-day refresh tokens |
@@ -203,7 +203,7 @@ npm start
    - **Start Command:** `npm start`
 3. **Environment Variables on Render:**
    - `NODE_ENV`: `production`
-   - `CLIENT_URL`: `https://your-frontend-app.vercel.app` (your Vercel frontend URL)
+   - `CLIENT_URL`: `https://issue-tracking-system-ten.vercel.app` (your Vercel frontend URL)
    - `MONGODB_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/issue_tracker?retryWrites=true&w=majority`
    - `ACCESS_TOKEN_SECRET`: `<secure-random-32+-char-string>`
    - `REFRESH_TOKEN_SECRET`: `<secure-random-32+-char-string>`

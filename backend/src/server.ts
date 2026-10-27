@@ -10,7 +10,8 @@ dotenv.config();
 const app: Application = express();
 const PORT: number | string = process.env.PORT || 5001;
 const allowedOrigins = [
-  process.env.CLIENT_URL,
+  process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/+$/, '') : undefined,
+  'https://issue-tracking-system-ten.vercel.app',
 ].filter(Boolean) as string[];
 
 // ─── Middleware ───────────────────────────────────────────────────────────────

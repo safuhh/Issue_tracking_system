@@ -201,7 +201,7 @@ erDiagram
 | :--- | :--- | :--- | :--- |
 | `PORT` | Backend | Port for Express listener | `5001` (Render configures dynamically) |
 | `NODE_ENV` | Backend | Environment mode | `production` |
-| `CLIENT_URL` | Backend | Production frontend origin for CORS | `https://your-app-name.vercel.app` |
+| `CLIENT_URL` | Backend | Production frontend origin for CORS | `https://issue-tracking-system-ten.vercel.app` |
 | `MONGODB_URI` | Backend | MongoDB Atlas connection string | `mongodb+srv://<user>:<pwd>@cluster.mongodb.net/issue_tracker?retryWrites=true&w=majority` |
 | `ACCESS_TOKEN_SECRET` | Backend | 256-bit secret for signing access JWTs | Generated 64-char hex string |
 | `REFRESH_TOKEN_SECRET`| Backend | 256-bit secret for signing refresh JWTs | Generated 64-char hex string |
@@ -232,9 +232,9 @@ erDiagram
    - Build Command: `npm run build`, Output Directory: `dist`.
    - Add Environment Variable: `VITE_API_URL=https://issuetrackr-backend.onrender.com/api`.
    - Client routing handled by included `frontend/vercel.json` SPA rewrite rule.
-   - Deploy and copy assigned Vercel URL (e.g., `https://issuetrackr.vercel.app`).
+   - Deploy and copy assigned Vercel URL (`https://issue-tracking-system-ten.vercel.app`).
 4. **Cross-Service CORS Sync:**
-   - Update `CLIENT_URL` on Render to match your live Vercel URL (`https://issuetrackr.vercel.app`) to authorize credentialed cookies.
+   - Update `CLIENT_URL` on Render to match your live Vercel URL (`https://issue-tracking-system-ten.vercel.app`) to authorize credentialed cookies.
 
 ### 7.4 Application Update & Maintenance Runbook
 1. **Zero-Downtime Backend Deployment:**
@@ -246,7 +246,7 @@ erDiagram
    - Deploying `dist/` triggers CDN cache invalidation with zero downtime.
 
 ### 7.5 Current Deployment Status
-- **Frontend Public URL:** `Pending` *(Not yet deployed to a public cloud environment; runs locally at `http://localhost:3000`)*
+- **Frontend Public URL:** `https://issue-tracking-system-ten.vercel.app` *(Deployed on Vercel Edge CDN)*
 - **Backend Public API URL:** `Pending` *(Not yet deployed to a public cloud environment; runs locally at `http://localhost:5001/api`)*
 
 ---

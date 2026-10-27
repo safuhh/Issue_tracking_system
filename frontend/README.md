@@ -144,13 +144,13 @@ npm run preview
    }
    ```
 5. **Cross-Service Sync:**
-   Once deployed, update the `CLIENT_URL` environment variable on your Render backend with your Vercel assigned domain (e.g. `https://your-app-name.vercel.app`).
+   Once deployed, update the `CLIENT_URL` environment variable on your Render backend with your Vercel assigned domain (`https://issue-tracking-system-ten.vercel.app`).
 
 ---
 
 ## 🌐 Service URLs
 
+- **Production Public URL:** `https://issue-tracking-system-ten.vercel.app`
 - **Local Development Portal:** `http://localhost:3000`
 - **Connected Backend API:** `http://localhost:5001/api`
-- **Production Public URL:** `Pending` *(Not yet deployed to a public cloud environment)*
 - **Master Documentation:** [Root README](../README.md) & [BRD](../brd.md)

@@ -34,18 +34,22 @@ const signRefreshToken = (payload: { id: string }): string => {
   });
 };
 
+const isProductionOrHttps =
+  process.env.NODE_ENV === 'production' ||
+  Boolean(process.env.CLIENT_URL && process.env.CLIENT_URL.startsWith('https://'));
+
 const cookieOptions: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  secure: isProductionOrHttps,
+  sameSite: isProductionOrHttps ? 'none' : 'lax',
   path: '/',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
 };
 
 const clearCookieOptions: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  secure: isProductionOrHttps,
+  sameSite: isProductionOrHttps ? 'none' : 'lax',
   path: '/',
 };
 
